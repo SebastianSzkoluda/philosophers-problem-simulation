@@ -7,7 +7,10 @@
 class Visualisation
 {
 private:
-    int rows, columns;
+    void initColors();
+
+    void drawLegend();
+    void drawTimeRangePanel();
 
     void drawPhilosopher(int id, bool usingLeft, bool usingRight);
     void drawPhilosopherDetails(int id, int progress, PhilosopherState state);

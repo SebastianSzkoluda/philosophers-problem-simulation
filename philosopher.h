@@ -3,7 +3,6 @@
 
 #include "fork.h"
 
-
 enum PhilosopherState {
     Thinking, Eating, Waiting, LeftForkAquired, RightForkAquired
 };
@@ -20,13 +19,14 @@ private:
     PhilosopherState state;
     int currentProgress; // out of 10
 
-    // actual time times 10
+    // actual time divided by 10
     int randomThinkingStepTime();
 
-    // actual time times 10
+    // actual time divided by 10
     int randomEatingStepTime();
 
     void wait10Times(int stepTime);
+
 public:
     Philosopher(int identifier, Fork* leftFork, Fork* rightFork);
 
@@ -37,6 +37,9 @@ public:
     void lifeCycle();
 
     void stop();
+
+    static int randomnessRange;
+    static int randomnessBase;
 };
 
 #endif // PHILOSOPHER_H
