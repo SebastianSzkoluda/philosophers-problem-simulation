@@ -4,10 +4,10 @@
 #include <chrono>
 
 int Philosopher::randomnessRange = 2000;
-int Philosopher::randomnessBase = 300;
+int Philosopher::randomnessBase = 2000;
 
-Philosopher::Philosopher(int identifier, Fork* leftFork, Fork* rightFork) : identifier(identifier), leftFork(leftFork), rightFork(rightFork),
-    isRunning(true), currentProgress(0)
+Philosopher::Philosopher(int identifier, Fork* leftFork, Fork* rightFork) : identifier(identifier),
+    leftFork(leftFork), rightFork(rightFork), isRunning(true), currentProgress(0)
 {
 }
 
@@ -44,46 +44,58 @@ void Philosopher::lifeCycle() {
         // finished thinking - will wait for forks
         this->state = Waiting;
 
-        if(this->leftFork->getId() < this->rightFork->getId()) {
-            // get leftFork first
-            this->leftFork->take();
-            this->state = LeftForkAquired;
+        takeForks();
 
-            this->rightFork->take();
+        // forks aquired, eataing
+        this->state = Eating;
 
-            // forks aquired, eataing
-            this->state = Eating;
+        int eatingStepTime = randomEatingStepTime();
+        wait10Times(eatingStepTime);
 
-            int eatingStepTime = randomEatingStepTime();
-            wait10Times(eatingStepTime);
+        releaseForks();
 
-            // release right fork first
-            this->rightFork->release();
-            this->state = LeftForkAquired;
-            this->leftFork->release();
-            this->state = Thinking;
+        this->state = Thinking;
 
-        } else {
-            // get rightFork first
-            this->rightFork->take();
-            this->state = RightForkAquired;
-
-            this->leftFork->take();
-
-            // forks aquired, eating
-            this->state = Eating;
-
-            int eatingStepTime = randomEatingStepTime();
-            wait10Times(eatingStepTime);
-
-            // release left fork first
-            this->leftFork->release();
-            this->state = RightForkAquired;
-            this->rightFork->release();
-            this->state = Thinking;
-        }
     }
 
+}
+
+/**
+ * @brief Take fork of lower id first to prevent deadlock.
+ */
+void Philosopher::takeForks() {
+    if(this->leftFork->getId() < this->rightFork->getId()) {
+        // get leftFork first
+        this->leftFork->take();
+        this->state = LeftForkAquired;
+
+        this->rightFork->take();
+
+    } else {
+        // get rightFork first
+        this->rightFork->take();
+        this->state = RightForkAquired;
+
+        this->leftFork->take();
+    }
+}
+
+/**
+ * @brief Release fork of lower id first to prevent deadlock.
+ */
+void Philosopher::releaseForks() {
+    if(this->leftFork->getId() < this->rightFork->getId()) {
+        // release right fork first
+        this->rightFork->release();
+        this->state = LeftForkAquired;
+        this->leftFork->release();
+
+    } else {
+        // release left fork first
+        this->leftFork->release();
+        this->state = RightForkAquired;
+        this->rightFork->release();
+    }
 }
 
 void Philosopher::stop() {
